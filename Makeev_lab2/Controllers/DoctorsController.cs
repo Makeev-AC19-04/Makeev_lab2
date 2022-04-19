@@ -80,7 +80,7 @@ namespace Makeev_lab2.Controllers
         }
 
         [HttpGet("GetSpecialists/{SpecId}")]
-        public async Task<IEnumerable<Doctor>> GetSpecialists(long SpecId)
+        public IEnumerable<Doctor> GetSpecialists(long SpecId) //async Task<IEnumerable<Doctor>>
         {
             IEnumerable<Doctor> doctorQuery =
                             from doc in _context.Doctors
@@ -91,6 +91,7 @@ namespace Makeev_lab2.Controllers
 
         // PUT: api/Doctors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDoctor(long id, Doctor doctor)
         {
@@ -117,11 +118,12 @@ namespace Makeev_lab2.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok("Доктор изменен");
         }
 
         // POST: api/Doctors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<Doctor>> PostDoctor(Doctor doctor)
         {

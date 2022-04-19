@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Makeev_lab2.Data;
 using Makeev_lab2.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Makeev_lab2.Controllers
 {
@@ -44,18 +45,19 @@ namespace Makeev_lab2.Controllers
         }
 
         [HttpGet("ServsWithSpecs")]
-        public async Task<ActionResult<Service>> GetServsWithSpecs()
+        public ActionResult<Service> GetServsWithSpecs()
         {
-           // var service = await _context.Services.FindAsync(id);
-
+            //Вывести список услуг с ценами и докторами
             var servsspecsQuery =
                 from serv in _context.Services
-                join doc in _context.Doctors on serv.Id equals doc.SpecialityId select new {doc.Name, serv.Price};
+                join doc in _context.Doctors on serv.Id equals doc.SpecialityId
+                select new { doc.Name, serv.ServiceName, serv.Price };
             return Ok(servsspecsQuery);
         }
 
         // PUT: api/Services/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutService(long id, Service service)
         {
@@ -87,6 +89,8 @@ namespace Makeev_lab2.Controllers
 
         // POST: api/Services
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<Service>> PostService(Service service)
         {
@@ -96,7 +100,8 @@ namespace Makeev_lab2.Controllers
             return CreatedAtAction("GetService", new { id = service.Id }, service);
         }
 
-        [HttpPost("{id}/{iddoc}")]
+        [Authorize(Roles = "admin")]
+        [HttpPost("{id}/{iddoc}")] //изменить специальност у доктора
         public async Task<ActionResult<Service>> ChangeSpec(long id, long iddoc)
         {
             var service = await _context.Services.FindAsync(id);
@@ -111,6 +116,8 @@ namespace Makeev_lab2.Controllers
         }
 
         // DELETE: api/Services/5
+
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteService(long id)
         {

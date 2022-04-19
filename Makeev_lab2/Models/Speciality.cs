@@ -3,6 +3,6 @@
     public class Speciality
     {
         public long Id { get; set; }
-        public string Name { get; set; }
+        public string SpecialityName { get; set; }
     }
 }

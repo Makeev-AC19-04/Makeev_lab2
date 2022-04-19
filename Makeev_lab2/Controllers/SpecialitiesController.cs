@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Makeev_lab2.Data;
 using Makeev_lab2.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Makeev_lab2.Controllers
 {
@@ -45,6 +46,8 @@ namespace Makeev_lab2.Controllers
 
         // PUT: api/Specialities/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSpeciality(long id, Speciality speciality)
         {
@@ -74,8 +77,20 @@ namespace Makeev_lab2.Controllers
             return NoContent();
         }
 
+        [HttpGet("SpecsWithDoctors")]
+        public ActionResult<Service> GetSpecsWithDoctors()
+        {
+            //Вывести список докторов со специальностями
+            var servsspecsQuery =
+                from spec in _context.Specialities
+                join doc in _context.Doctors on spec.Id equals doc.SpecialityId
+                select new { doc.Name, spec.SpecialityName };
+            return Ok(servsspecsQuery);
+        }
+
         // POST: api/Specialities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<Speciality>> PostSpeciality(Speciality speciality)
         {
@@ -86,6 +101,7 @@ namespace Makeev_lab2.Controllers
         }
 
         // DELETE: api/Specialities/5
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSpeciality(long id)
         {
