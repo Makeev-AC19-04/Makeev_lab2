@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Makeev_lab2.Data;
 using Makeev_lab2.Models;
+using Makeev_lab2.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Makeev_lab2.Controllers
@@ -23,102 +24,46 @@ namespace Makeev_lab2.Controllers
             _context = context;
         }
 
-        // GET: api/Doctors
+        // GET: api/Doctors - получить список всех докторов
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
+        public Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
         {
-            return await _context.Doctors.ToListAsync();
+            return DoctorsService.GetDoctors(_context); //await _context.Doctors.ToListAsync();
         }
 
         // GET: api/Doctors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Doctor>> GetDoctor(long id)
-        {
-            var doctor = await _context.Doctors.FindAsync(id);
-
-            if (doctor == null)
-            {
-                return NotFound();
-            }
-
-            return doctor;
+        public Task<ActionResult<Doctor>> GetDoctor(long id)
+        { 
+            return DoctorsService.GetDoctor(id, _context, NotFound()); //Костыль с NotFound
         }
 
         [HttpGet("{id}/GetSpeciality")]
-        public async Task<ActionResult<Speciality>> GetSpeciality(long id)
+        public Task<ActionResult<Speciality>> GetSpeciality(long id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
-
-            if (doctor == null)
-            {
-                return NotFound();
-            }
-
-            long SpecId = doctor.SpecialityId;
-
-            var speciality = await _context.Specialities.FindAsync(SpecId);
-
-            if (speciality == null)
-            {
-                return NotFound();
-            }
-
-            return speciality;
+            return DoctorsService.GetSpeciality(id, _context, NotFound());
         }
 
         [HttpGet("{id}/Name")]
-        public async Task<string> GetName(long id)
+        public Task<string> GetName(long id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
-
-            if (doctor == null)
-            {
-                return "There is no such doctor";
-            }
-            return doctor.GetName();
+            return DoctorsService.GetName(id, _context);
 
         }
 
         [HttpGet("GetSpecialists/{SpecId}")]
         public IEnumerable<Doctor> GetSpecialists(long SpecId) //async Task<IEnumerable<Doctor>>
         {
-            IEnumerable<Doctor> doctorQuery =
-                            from doc in _context.Doctors
-                            where doc.SpecialityId == SpecId
-                            select doc;
-            return doctorQuery;
+            return DoctorsService.GetSpecialists(SpecId, _context);
         }
 
         // PUT: api/Doctors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDoctor(long id, Doctor doctor)
+        public Task<IActionResult> PutDoctor(long id, Doctor doctor)
         {
-            if (id != doctor.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(doctor).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DoctorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return Ok("Доктор изменен");
+            return DoctorsService.PutDoctor(id, doctor, _context, BadRequest(), NotFound(), DoctorExists(id), Ok("Доктор изменен"));
         }
 
         // POST: api/Doctors
