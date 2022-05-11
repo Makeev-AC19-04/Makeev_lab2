@@ -63,12 +63,9 @@ namespace Makeev_lab2.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<ActionResult<Speciality>> PostSpeciality(Speciality speciality)
+        public Task<ActionResult<Speciality>> PostSpeciality(Speciality speciality)
         {
-            _context.Specialities.Add(speciality);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetSpeciality", new { id = speciality.Id }, speciality);
+            return SpecialitiesService.PostSpeciality(speciality, _context, CreatedAtAction("GetSpeciality", new { id = speciality.Id }, speciality));
         }
 
         // DELETE: api/Specialities/5

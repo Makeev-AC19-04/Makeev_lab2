@@ -77,34 +77,17 @@ namespace Makeev_lab2.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost("{id}/{idspec}")] //Изменить специальность доктора
-        public async Task<ActionResult<Doctor>> ChangeSpec(long id, long idspec) //comment for git
+        public Task<ActionResult<Doctor>> ChangeSpec(long id, long idspec) //comment for git
         {
-            var doctor = await _context.Doctors.FindAsync(id);
-
-            if (doctor == null)
-            {
-                return NotFound();
-            }
-            doctor.ChangeSpeciality(idspec);
-            await _context.SaveChangesAsync();
-            return doctor;
+            return DoctorsService.ChangeSpec(id, idspec, _context, NotFound());
         }
 
         // DELETE: api/Doctors/5
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")] //Удалить доктора
-        public async Task<IActionResult> DeleteDoctor(long id)
+        public Task<IActionResult> DeleteDoctor(long id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
-            if (doctor == null)
-            {
-                return NotFound();
-            }
-
-            _context.Doctors.Remove(doctor);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return DoctorsService.DeleteDoctor(id, _context, NotFound(), NoContent())
         }
 
         private bool DoctorExists(long id)

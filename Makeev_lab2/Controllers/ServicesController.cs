@@ -62,45 +62,25 @@ namespace Makeev_lab2.Controllers
         
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<ActionResult<Service>> PostService(Service service)
+        public Task<ActionResult<Service>> PostService(Service service)
         {
-            _context.Services.Add(service);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetService", new { id = service.Id }, service);
+            return ServicesService.PostService(_context, service, CreatedAtAction("GetService", new { id = service.Id }, service));
         }
 
         [Authorize(Roles = "admin")]
         [HttpPost("{id}/{iddoc}")] //изменить специальност у доктора
-        public async Task<ActionResult<Service>> ChangeSpec(long id, long iddoc)
+        public Task<ActionResult<Service>> ChangeSpec(long id, long iddoc)
         {
-            var service = await _context.Services.FindAsync(id);
-
-            if (service == null)
-            {
-                return NotFound();
-            }
-            service.ChangeDoctor(iddoc);
-            await _context.SaveChangesAsync();
-            return service;
+            return ServicesService.ChangeSpec(id, iddoc, _context, NotFound());
         }
 
         // DELETE: api/Services/5
 
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteService(long id)
+        public Task<IActionResult> DeleteService(long id)
         {
-            var service = await _context.Services.FindAsync(id);
-            if (service == null)
-            {
-                return NotFound();
-            }
-
-            _context.Services.Remove(service);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return ServicesService.DeleteService(id, _context, NotFound(), NoContent());
         }
 
         private bool ServiceExists(long id)

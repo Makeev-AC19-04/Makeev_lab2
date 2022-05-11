@@ -65,5 +65,12 @@ namespace Makeev_lab2.Services
 
             return noContent;
         }
+        public static async Task<ActionResult<Speciality>> PostSpeciality(Speciality speciality, Makeev_lab2Context _context, CreatedAtActionResult res)
+        {
+            _context.Specialities.Add(speciality);
+            await _context.SaveChangesAsync();
+
+            return res;
+        }
     }
 }

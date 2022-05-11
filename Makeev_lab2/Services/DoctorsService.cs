@@ -102,5 +102,30 @@ namespace Makeev_lab2.Services
 
             return caaresult;
         }
+        public static async Task<ActionResult<Doctor>> ChangeSpec(long id, long idspec, Makeev_lab2Context _context, NotFoundResult notFound) //comment for git
+        {
+            var doctor = await _context.Doctors.FindAsync(id);
+
+            if (doctor == null)
+            {
+                return notFound;
+            }
+            doctor.ChangeSpeciality(idspec);
+            await _context.SaveChangesAsync();
+            return doctor;
+        }
+        public static async Task<IActionResult> DeleteDoctor(long id, Makeev_lab2Context _context, NotFoundResult notFound, NoContentResult noContentResult)
+        {
+            var doctor = await _context.Doctors.FindAsync(id);
+            if (doctor == null)
+            {
+                return notFound;
+            }
+
+            _context.Doctors.Remove(doctor);
+            await _context.SaveChangesAsync();
+
+            return noContentResult;
+        }
     }
 }

@@ -53,6 +53,38 @@ namespace Makeev_lab2.Services
 
             return noContentResult;
         }
+        public static async Task<ActionResult<Service>> PostService(Makeev_lab2Context context, Service service, CreatedAtActionResult res)
+        {
+            context.Services.Add(service);
+            await context.SaveChangesAsync();
+            return res;
+        }
+        public static async Task<ActionResult<Service>> ChangeSpec(long id, long iddoc, Makeev_lab2Context _context, NotFoundResult notFoundResult)
+        {
+            var service = await _context.Services.FindAsync(id);
+
+            if (service == null)
+            {
+                return notFoundResult;
+            }
+            service.ChangeDoctor(iddoc);
+            await _context.SaveChangesAsync();
+            return service;
+        }
+
+        public static async Task<IActionResult> DeleteService(long id, Makeev_lab2Context _context, NotFoundResult notFoundResult, NoContentResult noContentResult)
+        {
+            var service = await _context.Services.FindAsync(id);
+            if (service == null)
+            {
+                return notFoundResult;
+            }
+
+            _context.Services.Remove(service);
+            await _context.SaveChangesAsync();
+
+            return noContentResult;
+        }
 
     }
 }
