@@ -70,12 +70,9 @@ namespace Makeev_lab2.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<ActionResult<Doctor>> PostDoctor(Doctor doctor)
+        public Task<ActionResult<Doctor>> PostDoctor(Doctor doctor)
         {
-            _context.Doctors.Add(doctor);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetDoctor", new { id = doctor.Id }, doctor);
+            return DoctorsService.PostDoctor(doctor, _context, CreatedAtAction("GetDoctor", new { id = doctor.Id }, doctor));
         }
 
         [Authorize(Roles = "admin")]

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Makeev_lab2.Data;
 using Makeev_lab2.Models;
+using Makeev_lab2.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Makeev_lab2.Controllers
@@ -32,22 +33,14 @@ namespace Makeev_lab2.Controllers
 
         // GET: api/Services/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Service>> GetService(long id)
+        public Task<ActionResult<Service>> GetService(long id)
         {
-            var service = await _context.Services.FindAsync(id);
-
-            if (service == null)
-            {
-                return NotFound();
-            }
-
-            return service;
+            return ServicesService.GetService(id, _context, NotFound());
         }
 
         [HttpGet("ServsWithSpecs")]
         public ActionResult<Service> GetServsWithSpecs()
         {
-            //Вывести список услуг с ценами и докторами
             var servsspecsQuery =
                 from serv in _context.Services
                 join doc in _context.Doctors on serv.Id equals doc.SpecialityId
@@ -59,32 +52,9 @@ namespace Makeev_lab2.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutService(long id, Service service)
+        public Task<IActionResult> PutService(long id, Service service)
         {
-            if (id != service.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(service).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ServiceExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return ServicesService.PutService(id, service, _context, BadRequest(), NotFound(), NoContent());
         }
 
         // POST: api/Services

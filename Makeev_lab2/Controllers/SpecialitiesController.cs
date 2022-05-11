@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Makeev_lab2.Data;
 using Makeev_lab2.Models;
+using Makeev_lab2.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Makeev_lab2.Controllers
@@ -32,16 +33,9 @@ namespace Makeev_lab2.Controllers
 
         // GET: api/Specialities/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Speciality>> GetSpeciality(long id)
+        public Task<ActionResult<Speciality>> GetSpeciality(long id)
         {
-            var speciality = await _context.Specialities.FindAsync(id);
-
-            if (speciality == null)
-            {
-                return NotFound();
-            }
-
-            return speciality;
+            return SpecialitiesService.GetSpeciality(id, _context, NotFound());
         }
 
         // PUT: api/Specialities/5
@@ -49,32 +43,9 @@ namespace Makeev_lab2.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSpeciality(long id, Speciality speciality)
+        public Task<IActionResult> PutSpeciality(long id, Speciality speciality)
         {
-            if (id != speciality.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(speciality).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SpecialityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return SpecialitiesService.PutSpeciality(id, speciality, _context, NotFound(), BadRequest(), NoContent());
         }
 
         [HttpGet("SpecsWithDoctors")]
@@ -103,18 +74,9 @@ namespace Makeev_lab2.Controllers
         // DELETE: api/Specialities/5
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSpeciality(long id)
+        public Task<IActionResult> DeleteSpeciality(long id)
         {
-            var speciality = await _context.Specialities.FindAsync(id);
-            if (speciality == null)
-            {
-                return NotFound();
-            }
-
-            _context.Specialities.Remove(speciality);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return SpecialitiesService.DeleteSpeciality(id, _context, NotFound(), NoContent());
         }
 
         private bool SpecialityExists(long id)
